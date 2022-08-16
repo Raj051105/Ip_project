@@ -1,4 +1,6 @@
 import csv
+import random
+import pandas as pd
 
 
 # Game board is a list
@@ -12,12 +14,12 @@ winner = None
 # Current player X or O
 player = "X"
 
-# Sending a record of current position to a csv
 def record_board():
-    with open("Scoresheet.csv", 'w') as Scoresheet:
-        writer = csv.writer(Scoresheet)
-        for i in range(len(board)):
-            writer.writerow(board[i])
+    row1 = board[0:3]
+    row2 = board[3:6]
+    row3 = board[6:9]
+    board_position = pd.DataFrame([[row1],[row2],[row3]])
+    board_position.to_csv("Scoresheet.csv")
 
 # Displaying the game board stored as list
 def show_board():
@@ -27,8 +29,8 @@ def show_board():
 
 
 
-#Game logic
-def play():
+#Game logic for player vs player
+def playp():
     
     #Show game board
     show_board()
@@ -37,7 +39,7 @@ def play():
     while playing == True:
         
         #Adds peices to game as per turn and input
-        turn(player)
+        turn(player, playername1, playername2)
 
         #Checking for a winner or a tie
         check()
@@ -48,9 +50,45 @@ def play():
         record_board()
 
 
+
     # Declaring winner
-    if winner == 'X' or winner == 'O':
-        print(winner + " Wins!")
+    if winner == 'X':
+        print(playername1 + " Wins!")
+    elif winner == 'O':
+        print(playername1 + " Wins!")
+    elif winner == None:
+        print("Tie!")
+
+
+
+#Game Logic for player vs computer
+def playc():
+        
+    #Show game board
+    show_board()
+  
+    #When the game is being played
+    while playing == True:
+        
+        #Adds peices to game as per turn and input
+        turn(player, playername1, playername2)
+
+        #Checking for a winner or a tie
+        check()
+        
+        #Change to next player
+        change_player()
+
+        record_board()
+
+        record_board()
+
+
+    # Declaring winner
+    if winner == 'X':
+        print(playername1 + " Wins!")
+    elif winner == 'C':
+        print(playername2 + " Wins!")
     elif winner == None:
         print("Tie!")
 
@@ -191,43 +229,153 @@ def change_player():
     #Setting up a global variable to be used in a function
     global player
     
-    #Hands turn over to the next player
-    if player == "X":
-        player = "O"
-    elif player == "O":
-        player = "X"
-    return
+
+    if game_mode in "Pp":
+        #Hands turn over to the next player
+        if player == "X":
+            player = "O"
+        elif player == "O":
+            player = "X"
+        return
+    
+    else: 
+        if player == "X":
+            player = "C"
+        elif player == "C":
+            player = "X"
 
 
 
 #Placing pieces accoridng to input of each player
-def turn(player):
+def turn(player, playername1, playername2):
     
-    print(player + " 's turn.")
-    
-    place = input("Choose a place 1-9: ")
-    
-    #We assume that the user input is invalid
-    valid = False
-
-    while not valid:
+    if game_mode in "Pp":
         
-        #Checking validity of the users input 
-        while place not in ["1","2","3","4","5","6","7","8","9"]:
-            place = input("Choose a place 1-9: ")
-        
-        #Changing the string provided by user to list index
-        place = int(place)
-        place = place - 1
-
-        #Checking for overwrites on board
-        if board[place] == " ":
-            valid = True
+        #2 player game
+        if player == "X":
+            print(playername1 + " 's turn.")
         else:
-            print("Cannot overwrite, choose different place.")
+            print(playername2 + " 's turn.")
+        
+        place = input("Choose a place 1-9: ")
+        
+        #We assume that the user input is invalid
+        valid = False
 
-    board[place] = player
+        while not valid:
+            
+            #Checking validity of the users input 
+            while place not in ["1","2","3","4","5","6","7","8","9"]:
+                place = input("Choose a place 1-9: ")
+            
+            #Changing the string provided by user to list index
+            place = int(place)
+            place = place - 1
+
+            #Checking for overwrites on board
+            if board[place] == " ":
+                valid = True
+            else:
+                print("Cannot overwrite, choose different place.")
+
+        board[place] = player
+        
+        show_board() 
+    else: 
+        if game_mode in "Cc":
+            if player == 'X':
+                place = input("Choose a place 1-9: ")
+                
+                #We assume that the user input is invalid
+                valid = False
+
+                while not valid:
+                    
+                    #Checking validity of the users input 
+                    while place not in ["1","2","3","4","5","6","7","8","9"]:
+                        place = input("Choose a place 1-9: ")
+                    
+                    #Changing the string provided by user to list index
+                    place = int(place)
+                    place = place - 1
+
+                    #Checking for overwrites on board
+                    if board[place] == " ":
+                        valid = True
+                    else:
+                        print("Cannot overwrite, choose different place.")
+
+                board[place] = player
+                
+                show_board() 
+            else:
+                board[computer_move()] = 'O'
+
+
+
+#AI that determines the computer's next move
+def computer_move():
+    possibilities = [x for x,pl in enumerate(board) if pl == ' ' and x != 0]
+    move = 0
+
+    #Checking which move will be the winning move
+    for p in ['O','X']:
+        for i in possibilities:
+            copy = board[:]
+            copy[i] = p
+            if check_win():
+                move = i
+                return move
+
+    #Checking the corners of the board
+    corners = []
+    for i in possibilities:
+        if i in [1,3,5,7]:
+            corners.append(i)
+
+    if len(corners) > 0:
+        move = selectRandom(corners)
+        return move
+
+    #Checking the edges of the board
+    edges = []
+    for i in possibilities:
+        if i in [1,3,5,7]:
+            edges.append(i)
+
+    if len(edges) > 0:
+        move = selectRandom(edges)
+        return move
+
+
+#Selecting a place to mark as O if there are many spaces within a row or column
+def selectRandom(lst):
+    length = len(lst)
+    r = random.randrange(0,length)
+    return lst[r]
+
+
+
+print("Welcome to XO game!!")
+
+#Getting game mode from the user
+game_mode = input("Do you want to play against computer(C) or against another player(P): ")
+while game_mode not in "CcPp":
+    game_mode = input("Do you want to play against computer(C) or against another player(P): ")
+ 
+
+if game_mode == 'P' or game_mode == 'p':
+
+    #Getting player's names to display in the game
+    playername1 = input("Name of player playing X: ")
+    playername2 = input("Name of player playing O: ")
+
+    playp()
+
+else:
+
+    #Getting player's names to display in the game
+    playername1 = input("Name of player playing X: ")
+    playername2 = "Computer"
     
-    show_board() 
-
-play()
+    playc()
