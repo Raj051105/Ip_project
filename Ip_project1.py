@@ -14,12 +14,16 @@ winner = None
 # Current player X or O
 player = "X"
 
+
+
 def record_board():
     row1 = board[0:3]
     row2 = board[3:6]
     row3 = board[6:9]
     board_position = pd.DataFrame([[row1],[row2],[row3]])
     board_position.to_csv("Scoresheet.csv")
+
+
 
 # Displaying the game board stored as list
 def show_board():
@@ -49,13 +53,11 @@ def playp():
 
         record_board()
 
-
-
     # Declaring winner
     if winner == 'X':
         print(playername1 + " Wins!")
     elif winner == 'O':
-        print(playername1 + " Wins!")
+        print(playername2 + " Wins!")
     elif winner == None:
         print("Tie!")
 
@@ -81,12 +83,10 @@ def playc():
 
         record_board()
 
-
-
     # Declaring winner
     if winner == 'X':
         print(playername1 + " Wins!")
-    elif winner == 'C':
+    elif winner == 'O':
         print(playername2 + " Wins!")
     elif winner == None:
         print("Tie!")
@@ -115,9 +115,9 @@ def check_win(comp = None):
     #Check each diagonal of board
     dia_winner = checkd()
 
-    if comp == "comp" and winner == None:
+    #Telling the computer if it has won
+    if comp == "Comp" and winner == None:
         return True
-
     
     #Declaring winner based on the row column and diagonal of current board
     if row_winner:
@@ -129,8 +129,6 @@ def check_win(comp = None):
     else:
         winner = None
     return
-
-
 
 
 
@@ -149,7 +147,6 @@ def checkr():
     if r1 or r2 or r3:
         playing = False
     
-
     #Return the winning character X or O
     if r1:
         return board[0]
@@ -176,7 +173,6 @@ def checkc():
     #If there is a match one of the players has won the game
     if c1 or c2 or c3:
         playing = False
-    
 
     #Return the winning character X or O
     if c1:
@@ -185,7 +181,6 @@ def checkc():
         return board[1]
     elif c3:
         return board[2]
-
 
     return
 
@@ -234,8 +229,9 @@ def change_player():
     #Setting up a global variable to be used in a function
     global player
     
-
+    #Changing of player depending on game mode
     if game_mode in "Pp":
+        
         #Hands turn over to the next player
         if player == "X":
             player = "O"
@@ -244,6 +240,8 @@ def change_player():
         return
     
     else: 
+
+        #Hands turn over to the next player
         if player == "X":
             player = "C"
         elif player == "C":
@@ -286,9 +284,13 @@ def turn(player, playername1, playername2):
         board[place] = player
         
         show_board() 
+    
     else: 
+
         if game_mode in "Cc":
+            
             if player == 'X':
+                
                 place = input("Choose a place 1-9: ")
                 
                 #We assume that the user input is invalid
@@ -313,8 +315,21 @@ def turn(player, playername1, playername2):
                 board[place] = player
                 
                 show_board() 
-            else:
-                board[computer_move()] = "O"
+            
+            #Computer selects a place and places O there
+            elif player == 'C':
+
+                print(playername2 + " 's turn.")
+            
+                board[computer_move()] = 'O'
+                
+                if not check():
+
+                    show_board()
+                    
+                    if playing == True:
+                        print(playername1 + " 's turn.")
+
 
 
 #AI that determines the computer's next move
@@ -328,7 +343,7 @@ def computer_move():
         for i in possibilities:
             copy = board[:]
             copy[i] = p
-            if check_win("Comp"):
+            if not check_win("Comp"):
                 move = i
                 return move
 
@@ -345,7 +360,7 @@ def computer_move():
     #Checking the edges of the board
     edges = []
     for i in possibilities:
-        if i in [1,3,5,7]:
+        if i in [2,4,6,8]:
             edges.append(i)
 
     if len(edges) > 0:
@@ -353,6 +368,8 @@ def computer_move():
         return move
 
     move = random.randint(0,9)
+    return move
+
 
 
 #Selecting a place to mark as O if there are many spaces within a row or column
