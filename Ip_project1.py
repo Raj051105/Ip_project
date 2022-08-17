@@ -1,5 +1,6 @@
 import csv
 import random
+from wsgiref import validate
 import pandas as pd
 
 
@@ -81,7 +82,6 @@ def playc():
 
         record_board()
 
-        record_board()
 
 
     # Declaring winner
@@ -309,14 +309,44 @@ def turn(player, playername1, playername2):
                 
                 show_board() 
             else:
-                board[computer_move()] = 'O'
+                move = computer_move()
+                while not validate(move):
+                    move = computer_move()                   
+
+                board[move] = "O"
+
+
+
+def validate(move):
+
+    place = str(move)
+        
+    #We assume that the user input is invalid
+    valid = False
+
+    while not valid:
+            
+        #Checking validity of the users input 
+        while place not in ["1","2","3","4","5","6","7","8","9"]:
+            place = computer_move()
+            
+        #Changing the string provided by user to list index
+        place = int(place)
+        place = place - 1
+
+        #Checking for overwrites on board
+        if board[place] == " ":
+            valid = True
+        else:
+            place = computer_move()
 
 
 
 #AI that determines the computer's next move
 def computer_move():
+
+    #Checkinf for empty spaces in the board
     possibilities = [x for x,pl in enumerate(board) if pl == ' ' and x != 0]
-    move = 0
 
     #Checking which move will be the winning move
     for p in ['O','X']:
@@ -347,6 +377,8 @@ def computer_move():
         move = selectRandom(edges)
         return move
 
+    move = random.randint(0,9)
+
 
 #Selecting a place to mark as O if there are many spaces within a row or column
 def selectRandom(lst):
@@ -356,7 +388,7 @@ def selectRandom(lst):
 
 
 
-print("Welcome to XO game!!")
+print("Welcome to XO game!!\n")
 
 #Getting game mode from the user
 game_mode = input("Do you want to play against computer(C) or against another player(P): ")
