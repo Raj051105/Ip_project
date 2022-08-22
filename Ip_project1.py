@@ -101,7 +101,7 @@ def check():
 
 
 #Checking if the current board results in a win 
-def check_win(comp = None):
+def check_win(copy = None):
     
     #Setting up a global variable to be used in a function
     global winner
@@ -114,10 +114,6 @@ def check_win(comp = None):
     
     #Check each diagonal of board
     dia_winner = checkd()
-
-    #Telling the computer if it has won
-    if comp == "Comp" and winner == None:
-        return True
     
     #Declaring winner based on the row column and diagonal of current board
     if row_winner:
@@ -336,25 +332,30 @@ def turn(player, playername1, playername2):
 def computer_move():
 
     #Checkinf for empty spaces in the board
-    possibilities = [x for x,pl in enumerate(board) if pl == ' ' and x != 0]
+    possibilities = [x for x,pl in enumerate(board) if pl == ' ']
 
     #Checking which move will be the winning move
     for p in ['O','X']:
         for i in possibilities:
             copy = board[:]
             copy[i] = p
-            if not check_win("Comp"):
+            check_win()
+            if winner == 'O':
                 move = i
                 return move
 
     #Checking the corners of the board
     corners = []
     for i in possibilities:
-        if i in [1,3,5,7]:
+        if i in [1,3,7,9]:
             corners.append(i)
 
     if len(corners) > 0:
         move = selectRandom(corners)
+        return move
+
+    if 5 in possibilities:
+        move = 5
         return move
 
     #Checking the edges of the board
@@ -367,7 +368,7 @@ def computer_move():
         move = selectRandom(edges)
         return move
 
-    move = random.randint(0,9)
+    move = random.choice(possibilities)
     return move
 
 
