@@ -1,4 +1,3 @@
-from calendar import c
 import csv
 import random
 import pandas as pd
@@ -14,6 +13,7 @@ winner = None
 
 # Current player X or O
 player = "X"
+
 
 
 #Sends a copy of board to a csv file
@@ -39,6 +39,7 @@ def beautify():
         
         num = 0
         
+        #i is the row number of file and v is the list of values at the particular row
         for i,v in enumerate(loaded_moves):
             
             if i%3 == 0:
@@ -92,6 +93,7 @@ def playp():
     pd.concat(moves_played).to_csv("Scoresheet.csv")
 
 
+
 #Game Logic for player vs computer
 def playc():
         
@@ -124,6 +126,7 @@ def playc():
         print("Tie!")
 
     pd.concat(moves_played).to_csv("Scoresheet.csv")
+
 
 
 #Checking if the current game board results in a win or a tie
