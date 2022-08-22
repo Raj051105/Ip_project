@@ -1,3 +1,4 @@
+from calendar import c
 import csv
 import random
 import pandas as pd
@@ -15,7 +16,7 @@ winner = None
 player = "X"
 
 
-
+#Sends a copy of board to a csv file
 def record_board():
     row1 = board[0:3]
     row2 = board[3:6]
@@ -100,8 +101,32 @@ def check():
 
 
 
+#Returning winner to the AI 
+def isWinner(copy, p):
+
+    #Checking for a win across a row
+    winning_rows = [copy[6] == p and copy[7] == p and copy[8] == p,
+    copy[3] == p and copy[4] == p and copy[5] == p,
+    copy[0] == p and copy[1] == p and copy[2] == p]
+
+    #Checking for a win across a column
+    winning_columns = [copy[0] == p and copy[3] == p and copy[6] == p,
+    copy[1] == p and copy[4] == p and copy[7] == p,
+    copy[2] == p and copy[5] == p and copy[8] == p]
+
+    #Checking for a win across a diagonal
+    winning_diagonal = [copy[0] == p and copy[4] == p and copy[8] == p,
+    copy[2] == p and copy[4] == p and copy[6] == p]
+
+    #Returning a winner
+    for i in winning_rows + winning_columns + winning_diagonal:
+        if i:
+            return i
+
+
+
 #Checking if the current board results in a win 
-def check_win(copy = None):
+def check_win():
     
     #Setting up a global variable to be used in a function
     global winner
@@ -339,8 +364,7 @@ def computer_move():
         for i in possibilities:
             copy = board[:]
             copy[i] = p
-            check_win()
-            if winner == 'O':
+            if isWinner(copy, p):
                 move = i
                 return move
 
