@@ -17,12 +17,37 @@ player = "X"
 
 
 #Sends a copy of board to a csv file
-def record_board():
+def record_board(board):
     row1 = board[0:3]
     row2 = board[3:6]
     row3 = board[6:9]
-    board_position = pd.DataFrame([[row1],[row2],[row3]])
-    board_position.to_csv("Scoresheet.csv")
+    return pd.DataFrame([[row1],[row2],[row3]])
+
+
+
+#Cleans up output of csv file
+def beautify():
+    
+    #Opens csv file and copies all the data into a list
+    with open("Scoresheet.csv", 'r') as file:
+    
+        f = csv.reader(file)
+        loaded_moves = [move for move in f][1:]
+    
+    #Iterates over the list and adds new lines to seperate boards and counts moves
+    with open("Scoresheet.csv", 'w') as file:
+        
+        num = 0
+        
+        for i,v in enumerate(loaded_moves):
+            
+            if i%3 == 0:
+                num += 1
+                file.write('\n')
+                file.write(f"Move {num}: \n")
+
+            file.write(v[1])
+            file.write('\n')      
 
 
 
@@ -39,6 +64,8 @@ def playp():
     
     #Show game board
     show_board()
+
+    moves_played = []
   
     #When the game is being played
     while playing == True:
@@ -52,7 +79,7 @@ def playp():
         #Change to next player
         change_player()
 
-        record_board()
+        moves_played.append(record_board(board))
 
     # Declaring winner
     if winner == 'X':
@@ -62,6 +89,7 @@ def playp():
     elif winner == None:
         print("Tie!")
 
+    pd.concat(moves_played).to_csv("Scoresheet.csv")
 
 
 #Game Logic for player vs computer
@@ -69,6 +97,8 @@ def playc():
         
     #Show game board
     show_board()
+
+    moves_played = []
   
     #When the game is being played
     while playing == True:
@@ -82,7 +112,8 @@ def playc():
         #Change to next player
         change_player()
 
-        record_board()
+
+        moves_played.append(record_board(board))
 
     # Declaring winner
     if winner == 'X':
@@ -92,6 +123,7 @@ def playc():
     elif winner == None:
         print("Tie!")
 
+    pd.concat(moves_played).to_csv("Scoresheet.csv")
 
 
 #Checking if the current game board results in a win or a tie
@@ -428,3 +460,6 @@ else:
     playername2 = "Computer"
     
     playc()
+
+
+beautify()
